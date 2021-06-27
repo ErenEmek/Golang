@@ -1,13 +1,13 @@
 # Some notes
 
-**Statement:** the smallest standalone element of a program.
-**Expression:** the combination of one or more explicit values, constants, etc. that the prog. lang. interprets to produce another value.
-**Important Delimiters:** (paranthesis) {curly braces} [brackets]
-**Scope of a variable:** where you can access the variable
-**Primitive data type:** is a basic data type build into the language. 
-**Composite data type:** allows you to compose together values of other datatypes
-**Zero Variable:** compiler assigned default variable called zero variable. 
-**Keyword:** is a reserved word for use by the specific job. 
+**Statement:** the smallest standalone element of a program.\
+**Expression:** the combination of one or more explicit values, constants, etc. that the prog. lang. interprets to produce another value.\
+**Important Delimiters:** (paranthesis) {curly braces} [brackets]\
+**Scope of a variable:** where you can access the variable.\
+**Primitive data type:** is a basic data type build into the language. \
+**Composite data type:** allows you to compose together values of other datatypes.\
+**Zero Variable:** compiler assigned default variable called zero variable. \
+**Keyword:** is a reserved word for use by the specific job. \
 
 <ul>
 
