@@ -1,0 +1,109 @@
+package main
+
+import (
+	"fmt"
+	"runtime"
+	"sync"
+)
+
+var wg sync.WaitGroup	//wg variable defined
+
+func main() {
+	fmt.Println(runtime.NumGoroutine())
+	wg.Add(2)	//We added 2 waitgroups. We'll wait for 2 things.
+	go foo()	//We launched a new goroutine
+	
+	go bar()
+	fmt.Println(runtime.NumGoroutine())
+	wg.Wait()	//Wait until 2 waitgroups done. If we don't include this, main func may be exited before routines done.
+}
+
+func foo() {
+	for i := 0; i < 10; i++ {
+		fmt.Println("foo:", i)
+	}
+	wg.Done()	//wg is done.
+}
+
+func bar() {
+	for i := 0; i < 10; i++ {
+		fmt.Println("bar:", i)
+	}
+	wg.Done()	//wg is done.
+}
+
+Race condition: Concurrent processes are overlapped and rw to shared variables used incorrectly.
+
+To prevent this condition, shared values should pass around on channels, only one goroutine has access to the value at any given time.
+
+Do not communicate by sharing memory. Share memory by communicating.
+
+Using mutex around an integer also possible but using channels makes it easier to write correct programs.
+
+go run -race main.go (will detect race conditions)
+
+package main
+
+import (
+	"fmt"
+	"runtime"
+	"sync"
+)
+
+func main() {
+	counter := 0
+	const gs = 100
+	var wg sync.WaitGroup
+	wg.Add(gs) //we add 100 waitgroups.
+
+	for i := 0; i < 100; i++ {
+		go func() {
+			a := counter      // variable a is set to counter
+			runtime.Gosched() // like sleep, tells cpu if you have another job, do that beforehand.
+			a++               // variable a is increased 1
+			counter = a       // value of a is set to counter again.
+			wg.Done()         //each wg should be done.
+		}()
+	}
+	wg.Wait()            //main routine will wait until all waitgroups are done.
+	fmt.Println(counter) // result is varying due to the race condition. Sometimes 75, sometimes 90, ... no consistency
+}
+
+Mutex: Locking access to a certain variable before modifying it.
+
+package main
+
+import (
+	"fmt"
+	"runtime"
+	"sync"
+)
+
+func main() {
+	counter := 0
+	const gs = 100
+	var wg sync.WaitGroup
+	wg.Add(gs) 
+	var mu sync.Mutex	//added mu variable
+
+	for i := 0; i < 100; i++ {
+		go func() {
+			mu.Lock()	// locked counter variable before accessing
+			a := counter      
+			runtime.Gosched() 
+			a++    
+			counter = a       
+			mu.Unlock()	// unlocked counter variable after modification           
+			wg.Done()
+		}()
+	}
+	wg.Wait()            
+	fmt.Println(counter) // nobody else can access the locked variable, therefore, no race condition occurs. Result is consistent at 100
+}
+
+
+Atomic: 
+
+
+
+

@@ -1,0 +1,18 @@
+Writer Interface
+
+func NewEncoder(w io.Writer) *Encoder // take data, encode it and write it directly to that writer. 
+		                      // writes to a File, Screen, to Web Connection
+
+func NewEncoder(w io.Writer) *Encoder // this func takes a Writer, returns a pointer to encoder.
+func (enc *Encoder) Encode(v interface{}) error // this is encode method for Encoder type, takes pointer to an encoder, returns an error.
+
+type Writer interface{	
+	Write(p []byte) (n int, err error) // any other type that has Write method attached to it is also be of type Writer.
+}					   // we can place any type that has Write method attached to it for place io.Writer
+
+package "io"
+
+Any other type that has Write method attached to it is also of type Writer
+
+Write(p []byte) (n int, err error)
+

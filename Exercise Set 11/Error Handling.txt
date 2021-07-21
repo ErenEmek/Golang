@@ -1,0 +1,69 @@
+Go does not have exceptions. Go has error type variables.
+
+Multi value returns make it easy to report an error. 
+
+type error is an interface included in builtin package. So, any type that has Error() string method attached to it is also of error type.
+
+We can create custom error types including that method in them.
+
+func New(text string) error { //new returns an error that formats as the given text
+	return &errorString{text} //struct literal
+}
+
+type errorString struct {	//underlying struct
+	s string
+}
+
+func (e *errorString) Error() string { //error method attached to struct
+	return e.s
+}
+
+OS Create File / Write to File:
+
+package main
+
+import (
+	"fmt"
+	"io"
+	"os"
+	"strings"
+)
+
+func main() {
+	f, err := os.Create("names.txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer f.Close()
+	r := strings.NewReader("James Bond")
+	io.Copy(f, r)	
+}
+
+f, err := os.Open("names.txt") //to read
+
+bs, err := ioutil.ReadAll(f)
+
+fmt.Println(string(bs))
+
+Printing & Logging:
+
+Fatal: game over. program exits, deferred functions does not run.
+Panic: you can recover. deferred functions run. stops execution of current goroutine.
+log.Println(err): adds timestamp to output.
+
+use cases: 
+
+fmt.Println(err)
+log.Println(err)
+log.Fatalln(err)
+log.Panicln(err)
+panic(err)
+
+Logging to file:
+
+f, err := os.Create("log.txt")
+log.SetOutput(f)
+
+
+
+

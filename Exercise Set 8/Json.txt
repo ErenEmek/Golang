@@ -1,0 +1,30 @@
+
+Marshal 
+
+type ColorGroup struct { //capital letter shows viewable outside of the package.
+	ID int
+	Name string
+	Colors []string
+}
+
+group := ColorGroup{
+..
+}
+
+b, err := json.Marshal(group) //Marshal turns group into json format.
+if err != nil {
+	fmt.Println(nil)
+}
+
+Unmarshal
+
+type person struct {
+
+	First string `json:"First"`
+	Last string `json:"Last"`
+	Age int `json:"Age"`
+
+
+s := json text
+bs := []byte(s)
+err := json.Unmarshal(bs, &people) //turns bs into struct

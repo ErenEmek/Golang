@@ -1,0 +1,189 @@
+c := make(chan int) // define a channel for int
+
+c <- 42	//send value 42 to c.
+
+One routine should be waiting for this value. If no routine waits to receive, deadlock happens.
+
+c := make(chan int, 1) //buffered channel. holds 1 value until it's pulled. If 2 value assigned w/o pulling, deadlock happens.
+
+FIFO. but use unbuffered channels as possible.
+
+Directional Channels:
+
+c := make(chan <- int) //send only type channel.
+
+c := make(<- chan int) //receive only type channel.
+
+// you can not convert specific type to more general, but you can convert general type to specific.
+
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+var wg sync.WaitGroup
+
+func main() {
+	c := make(chan int)
+	wg.Add(2)
+	//send
+	go foo(c)
+
+	//receive
+	go bar(c)
+
+	wg.Wait()
+	fmt.Println("about to exit")
+}
+
+func foo(c chan<- int) { //send
+	c <- 42
+	wg.Done()
+}
+
+func bar(c <-chan int) { //receive
+	fmt.Println(<-c)
+	wg.Done()
+}
+
+Range loop:
+
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+var wg sync.WaitGroup
+
+func main() {
+	c := make(chan int)
+	wg.Add(1)
+	//send
+	go foo(c)
+
+	//receive
+	for v := range c { //keeps ranging over a channel until the channel closes.
+		fmt.Println(v)
+	}
+
+	wg.Wait()
+	fmt.Println("about to exit")
+}
+
+func foo(c chan<- int) { //send
+	for i:=0;i<100;i++{
+		
+	c <- 42
+	}
+	close(c) //If we did not close the channel, receiver end at the main routine keeps waiting and deadlock happens. 
+	wg.Done()
+}
+
+Select-Case:
+
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+var wg sync.WaitGroup
+
+func main() {
+
+	wg.Add(1)
+	eve := make(chan int)
+	odd := make(chan int)
+	qt := make(chan int)
+
+	go send(eve, odd, qt)
+
+	go receive(eve, odd, qt)
+
+	wg.Wait()
+	fmt.Println("about to exit")
+}
+
+func send(e, o, q chan<- int) { //defined 3 send-only channels
+	for i := 0; i < 20; i++ {
+		if i%2 == 0 {
+			e <- i
+		} else {
+			o <- i
+		}
+	}
+	q <- 0
+	wg.Done()
+}
+
+func receive(e, o, q <-chan int) { //defined 3 receive-only channels
+	for {
+		select {
+		case v := <-e:
+			fmt.Println("even", v)
+		case v := <-o:
+			fmt.Println("odd", v)
+		case v := <-q:
+			fmt.Println("quit", v)
+		}
+	}
+}
+
+comma, ok idiom:
+
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	even := make(chan int)
+	odd := make(chan int)
+	quit := make(chan int)
+
+	go send(even, odd, quit)
+
+	receive(even, odd, quit)
+
+	fmt.Println("exits")
+
+}
+
+func send(e, o, q chan<- int) {
+
+	for i := 0; i < 30; i++ {
+		if i%2 == 0 {
+			e <- i
+		} else {
+			o <- i
+		}
+	}
+	close(q)
+}
+
+func receive(e, o, q <-chan int) {
+	for {
+		select {
+		case v := <-e:
+			fmt.Println("even:", v)
+		case v := <-o:
+			fmt.Println("odd:", v)
+		case i, ok := <-q:	//i takes int, ok takes false because channel is closed.
+			if !ok {
+				fmt.Println(i, ok)
+				return
+			} else {
+				//fmt.Println("from comma ok", i)
+			}
+		}
+	}
+}
+
+
+
